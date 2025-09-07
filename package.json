@@ -1,0 +1,30 @@
+{
+  "name": "mcpclient",
+  "version": "1.0.0",
+  "description": "Lightweight MCP client proxy for cloud-based MCP servers",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcpclient": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "axios": "^1.7.7",
+    "mongodb": "^6.19.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/yargs": "^17.0.32",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
