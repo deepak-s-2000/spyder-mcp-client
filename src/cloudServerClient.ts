@@ -4,15 +4,24 @@ import { CloudServerResponse } from './mcpClient.js';
 export class CloudServerClient {
   private client: AxiosInstance;
   private baseUrl: string;
+  private apiKey?: string;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, apiKey?: string) {
     this.baseUrl = baseUrl;
+    this.apiKey = apiKey;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Add API key to headers if provided
+    if (this.apiKey) {
+      headers['X-API-Key'] = this.apiKey;
+    }
+
     this.client = axios.create({
       baseURL: baseUrl,
       timeout: 30000, // 30 seconds timeout
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers
     });
 
     // Add request logging

@@ -14,6 +14,7 @@ export interface McpClientConfig {
   serverName: string;
   cloudUrl: string;
   serverArgs: Record<string, any>;
+  apiKey?: string;
 }
 
 export interface CloudServerTool {
@@ -55,7 +56,7 @@ export class McpClient {
       }
     });
 
-    this.cloudClient = new CloudServerClient(config.cloudUrl);
+    this.cloudClient = new CloudServerClient(config.cloudUrl, config.apiKey);
     this.vendorExecutor = new VendorExecutor();
 
     this.setupHandlers();

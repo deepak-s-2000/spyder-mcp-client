@@ -56,6 +56,10 @@ async function main() {
       type: 'string',
       default: 'http://localhost:3001',
       description: 'URL of the cloud server'
+    })
+    .option('apiKey', {
+      type: 'string',
+      description: 'API key for cloud server authentication'
     });
 
   // Add all MongoDB MCP server options
@@ -82,10 +86,10 @@ async function main() {
   
   const argv = await yargsBuilder.help().parse();
 
-  // Extract server arguments (all arguments except 'server' and 'cloudUrl')
+  // Extract server arguments (all arguments except 'server', 'cloudUrl', and 'apiKey')
   const serverArgs: Record<string, any> = {};
   for (const [key, value] of Object.entries(argv)) {
-    if (key !== 'server' && key !== 'cloudUrl' && key !== '_' && key !== '$0' && value !== undefined) {
+    if (key !== 'server' && key !== 'cloudUrl' && key !== 'apiKey' && key !== '_' && key !== '$0' && value !== undefined) {
       serverArgs[key] = value;
     }
   }
@@ -97,7 +101,8 @@ async function main() {
   const client = new McpClient({
     serverName: argv.server,
     cloudUrl: argv.cloudUrl,
-    serverArgs
+    serverArgs,
+    apiKey: argv.apiKey
   });
 
   const transport = new StdioServerTransport();
