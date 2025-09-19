@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Client</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #005c99;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .status.running {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.stopped {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.error {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .update-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007acc;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MCP Client GUI</h1>
+
+        <div class="form-group">
+            <label for="server">Server Name:</label>
+            <input type="text" id="server" value="mongodb-mcp-server" placeholder="e.g., mongodb-mcp-server">
+        </div>
+
+        <div class="form-group">
+            <label for="cloudUrl">Cloud Server URL:</label>
+            <input type="text" id="cloudUrl" value="http://localhost:3001" placeholder="http://localhost:3001">
+        </div>
+
+        <div class="form-group">
+            <label for="apiKey">API Key (optional):</label>
+            <input type="password" id="apiKey" placeholder="Enter API key if required">
+        </div>
+
+        <div class="form-group">
+            <label for="connectionString">MongoDB Connection String:</label>
+            <input type="text" id="connectionString" placeholder="mongodb://localhost:27017/mydb">
+        </div>
+
+        <button id="startBtn">Start MCP Client</button>
+        <button id="stopBtn" disabled>Stop MCP Client</button>
+
+        <div id="status" class="status stopped">
+            Status: Stopped
+        </div>
+
+        <div class="update-section">
+            <h3>Auto Updates</h3>
+            <button id="checkUpdateBtn">Check for Updates</button>
+            <button id="installUpdateBtn" disabled>Install Update</button>
+            <div id="updateStatus"></div>
+            <div id="progressBar" class="progress-bar" style="display: none;">
+                <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { electronAPI } = window;
+
+        let isRunning = false;
+
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+        const installUpdateBtn = document.getElementById('installUpdateBtn');
+        const updateStatus = document.getElementById('updateStatus');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+
+        // Load initial status
+        loadStatus();
+
+        async function loadStatus() {
+            try {
+                const clientStatus = await electronAPI.getClientStatus();
+                isRunning = clientStatus.isRunning;
+                updateUI();
+            } catch (error) {
+                console.error('Error loading status:', error);
+            }
+        }
+
+        function updateUI() {
+            startBtn.disabled = isRunning;
+            stopBtn.disabled = !isRunning;
+
+            if (isRunning) {
+                status.className = 'status running';
+                status.textContent = 'Status: Running';
+            } else {
+                status.className = 'status stopped';
+                status.textContent = 'Status: Stopped';
+            }
+        }
+
+        startBtn.addEventListener('click', async () => {
+            const config = {
+                serverName: document.getElementById('server').value,
+                cloudUrl: document.getElementById('cloudUrl').value,
+                apiKey: document.getElementById('apiKey').value || undefined,
+                serverArgs: {
+                    connectionString: document.getElementById('connectionString').value
+                }
+            };
+
+            try {
+                const result = await electronAPI.startMcpClient(config);
+                if (result.success) {
+                    isRunning = true;
+                    updateUI();
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `Error: ${result.error}`;
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = `Error: ${error.message}`;
+            }
+        });
+
+        stopBtn.addEventListener('click', async () => {
+            try {
+                const result = await electronAPI.stopMcpClient();
+                if (result.success) {
+                    isRunning = false;
+                    updateUI();
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `Error: ${result.error}`;
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = `Error: ${error.message}`;
+            }
+        });
+
+        checkUpdateBtn.addEventListener('click', async () => {
+            try {
+                updateStatus.textContent = 'Checking for updates...';
+                await electronAPI.checkForUpdates();
+            } catch (error) {
+                updateStatus.textContent = `Error checking for updates: ${error.message}`;
+            }
+        });
+
+        installUpdateBtn.addEventListener('click', async () => {
+            try {
+                await electronAPI.installUpdate();
+            } catch (error) {
+                updateStatus.textContent = `Error installing update: ${error.message}`;
+            }
+        });
+
+        // Listen for update events
+        electronAPI.onUpdateStatus((data) => {
+            switch (data.status) {
+                case 'checking':
+                    updateStatus.textContent = 'Checking for updates...';
+                    break;
+                case 'available':
+                    updateStatus.textContent = 'Update available! Downloading...';
+                    break;
+                case 'not-available':
+                    updateStatus.textContent = 'No updates available.';
+                    break;
+                case 'downloaded':
+                    updateStatus.textContent = 'Update downloaded! Ready to install.';
+                    installUpdateBtn.disabled = false;
+                    break;
+                case 'error':
+                    updateStatus.textContent = `Update error: ${data.error}`;
+                    break;
+            }
+        });
+
+        electronAPI.onUpdateProgress((progress) => {
+            progressBar.style.display = 'block';
+            progressFill.style.width = `${progress.percent}%`;
+            updateStatus.textContent = `Downloading update: ${Math.round(progress.percent)}%`;
+        });
+    </script>
+</body>
+</html>
