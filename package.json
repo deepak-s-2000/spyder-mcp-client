@@ -15,7 +15,7 @@
     "electron": "electron dist/electron-main.js",
     "electron-dev": "npm run build && electron dist/electron-main.js",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder",
+    "dist": "npm run build && electron-builder",
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist"
   },

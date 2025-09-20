@@ -22,22 +22,40 @@ npm start
 
 ## Usage
 
+### Command Line Interface
 ```bash
 mcpclient --server <server-name> --cloudUrl <cloud-server-url> [server-options]
 ```
 
-### Required Arguments
+#### Required Arguments
 - `--server`: The MCP server name to proxy (e.g., `mongodb-mcp-server`)
 - `--cloudUrl`: URL of the cloud server (default: `http://localhost:3001`)
 
-### Optional Arguments
+#### Optional Arguments
 - `--apiKey`: API key for cloud server authentication
 - All MongoDB MCP server options are supported and passed through
 
-### Example
+#### Example
 ```bash
 mcpclient --server mongodb-mcp-server --cloudUrl https://your-cloud-server.com --connectionString "mongodb://localhost:27017/mydb"
 ```
+
+### Graphical User Interface (GUI)
+For a visual interface, use the Electron app:
+
+```bash
+# Development mode
+npm run electron-dev
+
+# Production mode
+npm run electron
+```
+
+The GUI provides:
+- Easy configuration forms
+- Start/stop client controls
+- Status monitoring
+- Auto-update functionality
 
 ## Requirements
 

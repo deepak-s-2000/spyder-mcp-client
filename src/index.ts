@@ -30,6 +30,15 @@ const MONGODB_OPTIONS = {
 };
 
 async function main() {
+  // Check for GUI flag first
+  const args = process.argv.slice(2);
+  if (args.includes('--gui')) {
+    console.log('Launching MCP Client GUI...');
+    console.log('Please use: npm run electron');
+    console.log('Or use the electron binary directly: electron dist/electron-main.js');
+    return;
+  }
+
   // First, get the server name (required by our client)
   const initialArgv = await yargs(hideBin(process.argv))
     .option('server', {
@@ -41,6 +50,10 @@ async function main() {
       type: 'string',
       default: 'http://localhost:3001',
       description: 'URL of the cloud server'
+    })
+    .option('gui', {
+      type: 'boolean',
+      description: 'Launch GUI interface'
     })
     .help()
     .parse();
