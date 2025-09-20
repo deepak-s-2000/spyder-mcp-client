@@ -68,11 +68,7 @@
     "extraMetadata": {
       "main": "dist/electron-main.js"
     },
-    "publish": {
-      "provider": "github",
-      "owner": "deepak-s-2000",
-      "repo": "remote_mcp"
-    },
+    "publish": null,
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
