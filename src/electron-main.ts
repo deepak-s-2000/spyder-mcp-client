@@ -150,8 +150,8 @@ export class ElectronApp {
         // Configure auto-updater
         this.autoUpdater.setFeedURL({
             provider: 'github',
-            owner: 'your-username', // Replace with your GitHub username
-            repo: 'remote_mcp', // Replace with your repo name
+            owner: 'deepak-s-2000',
+            repo: 'remote_mcp',
             private: false
         });
 

@@ -68,15 +68,68 @@
     "extraMetadata": {
       "main": "dist/electron-main.js"
     },
-    "publish": null,
+    "publish": {
+      "provider": "github",
+      "owner": "deepak-s-2000",
+      "repo": "remote_mcp"
+    },
     "mac": {
-      "category": "public.app-category.developer-tools"
+      "category": "public.app-category.developer-tools",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ]
     },
     "win": {
-      "target": "nsis"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "ia32"]
+        }
+      ]
     },
     "linux": {
-      "target": "AppImage"
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "rpm",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "snap",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "tar.gz",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "Development",
+      "maintainer": "MCP Client Team <noreply@mcpclient.com>",
+      "vendor": "MCP Client Team",
+      "synopsis": "Lightweight MCP client proxy for cloud-based MCP servers",
+      "description": "A lightweight Model Context Protocol (MCP) client that acts as a proxy for cloud-based MCP servers. Supports both command-line and GUI interfaces with cross-platform compatibility."
     }
   }
 }
