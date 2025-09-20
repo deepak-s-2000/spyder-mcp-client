@@ -2,6 +2,7 @@
   "name": "mcpclient",
   "version": "1.0.0",
   "description": "Lightweight MCP client proxy for cloud-based MCP servers",
+  "author": "MCP Client Team",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -23,7 +24,6 @@
     "axios": "^1.7.7",
     "mongodb": "^6.19.0",
     "yargs": "^17.7.2",
-    "electron": "^38.1.0",
     "electron-updater": "^6.3.9"
   },
   "devDependencies": {
@@ -31,6 +31,7 @@
     "@types/yargs": "^17.0.32",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
+    "electron": "^38.1.0",
     "electron-builder": "^25.1.8"
   },
   "engines": {
