@@ -1,10 +1,10 @@
-# MCP Client
+# SpyderMCP Client
 
-Lightweight MCP client proxy for cloud-based MCP servers.
+Universal client for connecting to any Model Context Protocol (MCP) server through the cloud.
 
 ## Description
 
-This client acts as a proxy between MCP-compatible applications (like Claude Desktop) and cloud-hosted MCP servers. It forwards all MCP protocol messages to a remote server while maintaining the standard MCP interface locally.
+SpyderMCP Client is a universal proxy that connects MCP-compatible applications (like Claude Desktop) to any cloud-hosted MCP server. It provides a unified interface for accessing databases, APIs, file systems, and custom tools through the Model Context Protocol.
 
 ## Installation
 
@@ -28,16 +28,23 @@ mcpclient --server <server-name> --cloudUrl <cloud-server-url> [server-options]
 ```
 
 #### Required Arguments
-- `--server`: The MCP server name to proxy (e.g., `mongodb-mcp-server`)
+- `--server`: The MCP server name to proxy (e.g., `mongodb-mcp-server`, `filesystem-mcp`, `postgres-mcp`)
 - `--cloudUrl`: URL of the cloud server (default: `http://localhost:3001`)
 
 #### Optional Arguments
 - `--apiKey`: API key for cloud server authentication
-- All MongoDB MCP server options are supported and passed through
+- Server-specific options are supported and passed through to the target MCP server
 
-#### Example
+#### Examples
 ```bash
-mcpclient --server mongodb-mcp-server --cloudUrl https://your-cloud-server.com --connectionString "mongodb://localhost:27017/mydb"
+# Connect to MongoDB MCP server
+mcpclient --server mongodb-mcp-server --cloudUrl https://spydermcp.com --connectionString "mongodb://localhost:27017/mydb"
+
+# Connect to PostgreSQL MCP server
+mcpclient --server postgres-mcp --cloudUrl https://spydermcp.com --connectionString "postgresql://user:pass@localhost/db"
+
+# Connect to filesystem MCP server
+mcpclient --server filesystem-mcp --cloudUrl https://spydermcp.com --rootPath "/home/user/documents"
 ```
 
 ### Graphical User Interface (GUI)
@@ -63,10 +70,12 @@ The GUI provides:
 
 ## Features
 
-- Transparent MCP protocol proxying
-- Support for all MongoDB MCP server arguments
+- Universal MCP protocol proxying to any server type
+- Support for multiple MCP server implementations
+- Graphical and command-line interfaces
 - Graceful shutdown handling
-- Error handling and logging
+- Comprehensive error handling and logging
+- Auto-update functionality
 
 ## License
 
