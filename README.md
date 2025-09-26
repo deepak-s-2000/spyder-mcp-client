@@ -24,7 +24,7 @@ npm start
 
 ### Command Line Interface
 ```bash
-mcpclient --server <server-name> --cloudUrl <cloud-server-url> [server-options]
+spydermcp --server <server-name> --cloudUrl <cloud-server-url> [server-options]
 ```
 
 #### Required Arguments
@@ -38,13 +38,13 @@ mcpclient --server <server-name> --cloudUrl <cloud-server-url> [server-options]
 #### Examples
 ```bash
 # Connect to MongoDB MCP server
-mcpclient --server mongodb-mcp-server --cloudUrl https://spydermcp.com --connectionString "mongodb://localhost:27017/mydb"
+spydermcp --server mongodb-mcp-server --cloudUrl https://spydermcp.com --connectionString "mongodb://localhost:27017/mydb"
 
 # Connect to PostgreSQL MCP server
-mcpclient --server postgres-mcp --cloudUrl https://spydermcp.com --connectionString "postgresql://user:pass@localhost/db"
+spydermcp --server postgres-mcp --cloudUrl https://spydermcp.com --connectionString "postgresql://user:pass@localhost/db"
 
 # Connect to filesystem MCP server
-mcpclient --server filesystem-mcp --cloudUrl https://spydermcp.com --rootPath "/home/user/documents"
+spydermcp --server filesystem-mcp --cloudUrl https://spydermcp.com --rootPath "/home/user/documents"
 ```
 
 ### Graphical User Interface (GUI)

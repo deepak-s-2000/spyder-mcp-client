@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = electron;
 
 // Define the API that will be available in the renderer process
 const electronAPI = {
-    // MCP Client operations
+    // SpyderMCP operations
     startMcpClient: (config: any) => ipcRenderer.invoke('start-mcp-client', config),
     stopMcpClient: () => ipcRenderer.invoke('stop-mcp-client'),
     getClientStatus: () => ipcRenderer.invoke('get-client-status'),

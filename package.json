@@ -1,12 +1,12 @@
 {
-  "name": "mcpclient",
+  "name": "spydermcp",
   "version": "1.0.0",
-  "description": "Lightweight MCP client proxy for cloud-based MCP servers",
-  "author": "MCP Client Team",
+  "description": "SpyderMCP - Universal proxy for MCP-compatible applications and cloud-hosted servers",
+  "author": "SpyderMCP Team",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "mcpclient": "dist/index.js"
+    "spydermcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -51,12 +51,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/deepak-s-2000/remote-mcp.git",
-    "directory": "client"
+    "url": "https://github.com/deepak-s-2000/spyder-mcp-client.git"
   },
   "build": {
-    "appId": "com.mcpclient.app",
-    "productName": "MCP Client",
+    "appId": "com.spydermcp.app",
+    "productName": "SpyderMCP",
     "directories": {
       "output": "release"
     },
@@ -114,10 +113,10 @@
         }
       ],
       "category": "Development",
-      "maintainer": "MCP Client Team <noreply@mcpclient.com>",
-      "vendor": "MCP Client Team",
-      "synopsis": "Lightweight MCP client proxy for cloud-based MCP servers",
-      "description": "A lightweight Model Context Protocol (MCP) client that acts as a proxy for cloud-based MCP servers. Supports both command-line and GUI interfaces with cross-platform compatibility."
+      "maintainer": "SpyderMCP Team <noreply@spydermcp.com>",
+      "vendor": "SpyderMCP Team",
+      "synopsis": "SpyderMCP - Universal proxy for MCP-compatible applications and cloud-hosted servers",
+      "description": "SpyderMCP is a universal proxy that connects MCP-compatible applications to any cloud-hosted MCP server. Supports both command-line and GUI interfaces with cross-platform compatibility."
     }
   }
 }

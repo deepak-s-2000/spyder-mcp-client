@@ -33,7 +33,7 @@ async function main() {
   // Check for GUI flag first
   const args = process.argv.slice(2);
   if (args.includes('--gui')) {
-    console.log('Launching MCP Client GUI...');
+    console.log('Launching SpyderMCP GUI...');
     console.log('Please use: npm run electron');
     console.log('Or use the electron binary directly: electron dist/electron-main.js');
     return;
@@ -107,7 +107,7 @@ async function main() {
     }
   }
 
-  console.error(`Starting MCP client proxy for server: ${argv.server}`);
+  console.error(`Starting SpyderMCP proxy for server: ${argv.server}`);
   console.error(`Cloud server URL: ${argv.cloudUrl}`);
   console.error(`Server arguments:`, JSON.stringify(serverArgs, null, 2));
 
@@ -122,7 +122,7 @@ async function main() {
   
   // Handle shutdown gracefully
   const shutdown = () => {
-    console.error('Shutting down MCP client...');
+    console.error('Shutting down SpyderMCP...');
     process.exit(0);
   };
 
@@ -132,7 +132,7 @@ async function main() {
   try {
     await client.start(transport);
   } catch (error) {
-    console.error('Error starting MCP client:', error);
+    console.error('Error starting SpyderMCP:', error);
     process.exit(1);
   }
 }
