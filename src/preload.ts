@@ -7,6 +7,7 @@ const electronAPI = {
     startMcpClient: (config: any) => ipcRenderer.invoke('start-mcp-client', config),
     stopMcpClient: () => ipcRenderer.invoke('stop-mcp-client'),
     getClientStatus: () => ipcRenderer.invoke('get-client-status'),
+    getEnvironmentVars: () => ipcRenderer.invoke('get-environment-vars'),
 
     // Auto-updater operations
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),

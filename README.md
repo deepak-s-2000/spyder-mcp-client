@@ -24,27 +24,46 @@ npm start
 
 ### Command Line Interface
 ```bash
-spydermcp --server <server-name> --cloudUrl <cloud-server-url> [server-options]
+spydermcp --server <server-name> [server-options]
 ```
 
 #### Required Arguments
 - `--server`: The MCP server name to proxy (e.g., `mongodb-mcp-server`, `filesystem-mcp`, `postgres-mcp`)
-- `--cloudUrl`: URL of the cloud server (default: `http://localhost:3001`)
 
 #### Optional Arguments
+- `--cloudUrl`: URL of the cloud server (default: `http://localhost:3001`)
 - `--apiKey`: API key for cloud server authentication
 - Server-specific options are supported and passed through to the target MCP server
 
-#### Examples
+#### Environment Variables
+For cleaner configuration, you can use environment variables:
+- `SPYDERMCP_CLOUD_URL`: Cloud server URL (replaces `--cloudUrl`)
+- `SPYDERMCP_API_KEY`: API key for authentication (replaces `--apiKey`)
+
 ```bash
-# Connect to MongoDB MCP server
-spydermcp --server mongodb-mcp-server --cloudUrl https://spydermcp.com --connectionString "mongodb://localhost:27017/mydb"
+# Set environment variables (recommended)
+export SPYDERMCP_CLOUD_URL="https://spydermcp.com"
+export SPYDERMCP_API_KEY="your-api-key"
+```
 
-# Connect to PostgreSQL MCP server
-spydermcp --server postgres-mcp --cloudUrl https://spydermcp.com --connectionString "postgresql://user:pass@localhost/db"
+#### Examples
 
-# Connect to filesystem MCP server
-spydermcp --server filesystem-mcp --cloudUrl https://spydermcp.com --rootPath "/home/user/documents"
+**With environment variables (recommended):**
+```bash
+# Set environment variables once
+export SPYDERMCP_CLOUD_URL="https://spydermcp.com"
+export SPYDERMCP_API_KEY="your-api-key"
+
+# Clean command-line usage - only server-specific arguments
+spydermcp --server mongodb-mcp-server --connectionString "mongodb://localhost:27017/mydb"
+spydermcp --server postgres-mcp --connectionString "postgresql://user:pass@localhost/db"
+spydermcp --server filesystem-mcp --rootPath "/home/user/documents"
+```
+
+**Without environment variables:**
+```bash
+# Include cloudUrl and apiKey in each command
+spydermcp --server mongodb-mcp-server --cloudUrl https://spydermcp.com --apiKey your-key --connectionString "mongodb://localhost:27017/mydb"
 ```
 
 ### Graphical User Interface (GUI)

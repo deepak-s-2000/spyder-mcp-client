@@ -132,6 +132,14 @@ export class ElectronApp {
                 version: app.getVersion()
             };
         });
+
+        // Handle get environment variables
+        ipcMain.handle('get-environment-vars', () => {
+            return {
+                cloudUrl: process.env.SPYDERMCP_CLOUD_URL || '',
+                apiKey: process.env.SPYDERMCP_API_KEY || ''
+            };
+        });
     }
 
     private async loadAutoUpdater() {

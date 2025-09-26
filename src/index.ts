@@ -48,8 +48,8 @@ async function main() {
     })
     .option('cloudUrl', {
       type: 'string',
-      default: 'http://localhost:3001',
-      description: 'URL of the cloud server'
+      default: process.env.SPYDERMCP_CLOUD_URL || 'http://localhost:3001',
+      description: 'URL of the cloud server (env: SPYDERMCP_CLOUD_URL)'
     })
     .option('gui', {
       type: 'boolean',
@@ -67,12 +67,13 @@ async function main() {
     })
     .option('cloudUrl', {
       type: 'string',
-      default: 'http://localhost:3001',
-      description: 'URL of the cloud server'
+      default: process.env.SPYDERMCP_CLOUD_URL || 'http://localhost:3001',
+      description: 'URL of the cloud server (env: SPYDERMCP_CLOUD_URL)'
     })
     .option('apiKey', {
       type: 'string',
-      description: 'API key for cloud server authentication'
+      default: process.env.SPYDERMCP_API_KEY,
+      description: 'API key for cloud server authentication (env: SPYDERMCP_API_KEY)'
     });
 
   // Add all MongoDB MCP server options
