@@ -1,0 +1,145 @@
+name: Release SpyderMCP
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Electron binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+            ~/Library/Caches/electron
+            ~/Library/Caches/electron-builder
+            %LOCALAPPDATA%\electron\Cache
+            %LOCALAPPDATA%\electron-builder\Cache
+          key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build TypeScript and Electron distributables
+        run: |
+          npm run build
+          npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        timeout-minutes: 30
+
+      - name: Upload Electron distributables
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Node.js package (Ubuntu only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Create a clean package directory
+          mkdir -p release-package
+
+          # Copy built files
+          cp -r dist/ release-package/
+          cp package.json release-package/
+          cp README.md release-package/ 2>/dev/null || echo "No README.md found"
+
+          # Create package tarball
+          cd release-package
+          npm pack --pack-destination ../
+          cd ..
+
+          # Rename the generated tarball to match expected naming
+          mv spydermcp-*.tgz spydermcp-${GITHUB_REF_NAME#v}.tgz
+
+          # Also create a zip with all necessary files
+          zip -r spydermcp-${GITHUB_REF_NAME}.zip dist/ package.json
+
+      - name: Extract version from tag
+        id: get_version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Upload Node.js packages (Ubuntu only)
+        if: matrix.os == 'ubuntu-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: SpyderMCP v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## SpyderMCP Release v${{ steps.get_version.outputs.VERSION }}
+
+            Universal client for connecting to any Model Context Protocol (MCP) server through the cloud.
+
+            ### Desktop Applications
+            **Windows**:
+            - `.exe` installer (x64, x86)
+            - Portable `.exe` (x64, x86)
+            - `.zip` archive (x64, x86)
+
+            **macOS**:
+            - `.dmg` installer (Intel, Apple Silicon)
+            - `.zip` archive (Intel, Apple Silicon)
+
+            **Linux**:
+            - `.AppImage` (x64, ARM64) - Universal portable
+            - `.deb` packages (x64, ARM64) - Debian/Ubuntu
+            - `.tar.gz` archives (x64, ARM64)
+
+            ### Auto-Updater
+            All desktop applications include automatic update functionality. Updates will be checked and installed automatically.
+
+            ### Node.js Package Installation
+
+            **Option 1: Download and extract**
+            1. Download `spydermcp-${{ github.ref_name }}.zip`
+            2. Extract to your desired location
+            3. Run: `node dist/index.js --help`
+
+            **Option 2: Install from tarball**
+            1. Download `spydermcp-${{ steps.get_version.outputs.VERSION }}.tgz`
+            2. Run: `npm install -g spydermcp-${{ steps.get_version.outputs.VERSION }}.tgz`
+            3. Use: `spydermcp --help`
+
+            ### Usage
+            ```bash
+            # Command line
+            spydermcp --server mongodb-mcp-server --cloudUrl http://your-cloud-server:3001 [mongodb-options]
+
+            # GUI mode
+            spydermcp --gui
+            ```
+
+            ### Requirements
+            - Desktop apps: No additional requirements
+            - Node.js package: Node.js >= 20.0.0
+          files: |
+            spydermcp-${{ github.ref_name }}.zip
+            spydermcp-${{ steps.get_version.outputs.VERSION }}.tgz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
