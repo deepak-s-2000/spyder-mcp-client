@@ -109,14 +109,14 @@
           "from": "scripts/spydermcp.ps1",
           "to": "cli/spydermcp.ps1"
         }
-      ],
-      "nsis": {
-        "oneClick": false,
-        "allowToChangeInstallationDirectory": true,
-        "createDesktopShortcut": true,
-        "createStartMenuShortcut": true,
-        "shortcutName": "SpyderMCP"
-      }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SpyderMCP"
     },
     "linux": {
       "target": [
