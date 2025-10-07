@@ -95,7 +95,28 @@
           "target": "zip",
           "arch": ["x64", "ia32"]
         }
+      ],
+      "extraResources": [
+        {
+          "from": "dist/index.js",
+          "to": "cli/spydermcp-cli.js"
+        },
+        {
+          "from": "scripts/spydermcp.bat",
+          "to": "cli/spydermcp.bat"
+        },
+        {
+          "from": "scripts/spydermcp.ps1",
+          "to": "cli/spydermcp.ps1"
+        }
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SpyderMCP"
     },
     "linux": {
       "target": [
