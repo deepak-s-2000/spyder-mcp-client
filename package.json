@@ -6,33 +6,37 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "spydermcp": "dist/index.js"
+    "spydermcp": "dist/index.js",
+    "spydermcp-mcp": "dist/commands/mcpCommand.js"
   },
   "scripts": {
     "build": "tsc",
+    "bundle-cli": "node scripts/bundle-cli.js",
+    "build:full": "npm run build && npm run bundle-cli",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "electron": "electron dist/electron-main.js",
-    "electron-dev": "npm run build && electron dist/electron-main.js",
+    "electron-dev": "npm run build:full && electron dist/electron-main.js",
     "pack": "electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "prepublishOnly": "npm run build",
+    "dist": "npm run build:full && electron-builder",
+    "prepublishOnly": "npm run build:full",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.4",
     "axios": "^1.7.7",
+    "electron-updater": "^6.3.9",
     "mongodb": "^6.19.0",
-    "yargs": "^17.7.2",
-    "electron-updater": "^6.3.9"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/yargs": "^17.0.32",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2",
     "electron": "^38.1.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.25.10",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -73,11 +77,17 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ]
     },
@@ -85,22 +95,30 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "extraResources": [
         {
-          "from": "dist/",
-          "to": "cli/",
-          "filter": ["**/*", "!electron-main.js", "!electron-main.d.ts", "!preload.js", "!preload.d.ts"]
+          "from": "dist/spydermcp-bundle.cjs",
+          "to": "cli/spydermcp-bundle.cjs"
         },
         {
           "from": "scripts/spydermcp.bat",
@@ -126,21 +144,31 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "SpyderMCP",
-      "perMachine": true
+      "perMachine": true,
+      "include": "build/installer.nsh"
     },
     "linux": {
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "tar.gz",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "category": "Development",

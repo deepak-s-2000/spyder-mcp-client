@@ -4,6 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { McpClient } from './mcpClient.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { McpConfigManager } from './commands/mcpCommand.js';
 
 // All supported MongoDB MCP server arguments (from original config.ts)
 const MONGODB_OPTIONS = {
@@ -36,6 +37,12 @@ async function main() {
     console.log('Launching SpyderMCP GUI...');
     console.log('Please use: npm run electron');
     console.log('Or use the electron binary directly: electron dist/electron-main.js');
+    return;
+  }
+
+  // Check if this is an MCP config command
+  if (args[0] === 'mcp') {
+    await runMcpCommand();
     return;
   }
 
@@ -136,6 +143,140 @@ async function main() {
     console.error('Error starting SpyderMCP:', error);
     process.exit(1);
   }
+}
+
+async function runMcpCommand() {
+  const manager = new McpConfigManager();
+  const args = process.argv.slice(3); // Skip 'node', script name, and 'mcp'
+
+  await yargs(args)
+    .command(
+      'add <subcommand>',
+      'Add MCP server configuration',
+      (yargs) => {
+        return yargs
+          .command(
+            'json <name>',
+            'Generate JSON configuration for Claude Desktop',
+            (yargs) => {
+              return yargs
+                .positional('name', {
+                  describe: 'Name for this MCP server configuration',
+                  type: 'string',
+                  demandOption: true
+                })
+                .option('server', {
+                  alias: 's',
+                  type: 'string',
+                  demandOption: true,
+                  description: 'MCP server name (e.g., mongodb-mcp-server)'
+                })
+                .option('cloudUrl', {
+                  alias: 'c',
+                  type: 'string',
+                  description: 'Cloud server URL',
+                  default: process.env.SPYDERMCP_CLOUD_URL || 'http://localhost:3001'
+                })
+                .option('connectionString', {
+                  type: 'string',
+                  description: 'MongoDB connection string'
+                })
+                .option('write', {
+                  alias: 'w',
+                  type: 'boolean',
+                  description: 'Write directly to Claude Desktop config file',
+                  default: false
+                })
+                .option('force', {
+                  alias: 'f',
+                  type: 'boolean',
+                  description: 'Overwrite existing server configuration',
+                  default: false
+                });
+            },
+            async (argv) => {
+              const { name, server, cloudUrl, write, force, ...serverArgs } = argv;
+
+              // Filter out yargs internal properties
+              const filteredArgs: Record<string, any> = {};
+              for (const [key, value] of Object.entries(serverArgs)) {
+                if (key !== '_' && key !== '$0' && key !== 'subcommand' && value !== undefined) {
+                  filteredArgs[key] = value;
+                }
+              }
+
+              if (write) {
+                // Write directly to config file
+                try {
+                  await manager.addServer(
+                    name as string,
+                    server as string,
+                    filteredArgs,
+                    cloudUrl as string,
+                    undefined,
+                    force as boolean
+                  );
+                  console.log(`✓ Successfully added MCP server '${name}' to Claude Desktop config`);
+                  console.log(`  Restart Claude Desktop to use the new server.`);
+                } catch (error) {
+                  console.error(`✗ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                  process.exit(1);
+                }
+              } else {
+                // Just output the JSON configuration
+                const json = manager.generateClaudeConfig(
+                  name as string,
+                  server as string,
+                  filteredArgs,
+                  cloudUrl as string
+                );
+                console.log('\nAdd this to your Claude Desktop configuration:');
+                console.log('================================================================================');
+                console.log(json);
+                console.log('================================================================================\n');
+                console.log('Configuration file location:');
+                const configPath = manager['getDefaultConfigPath']();
+                console.log(`  ${configPath}\n`);
+                console.log('Tip: Use --write flag to automatically update the config file');
+              }
+            }
+          )
+          .demandCommand(1, 'Specify a subcommand: json');
+      }
+    )
+    .command(
+      'list',
+      'List all configured MCP servers',
+      () => {},
+      async () => {
+        try {
+          const servers = await manager.listServers();
+
+          if (Object.keys(servers).length === 0) {
+            console.log('No MCP servers configured in Claude Desktop.');
+            return;
+          }
+
+          console.log('\nConfigured MCP servers in Claude Desktop:');
+          console.log('================================================================================');
+          for (const [name, config] of Object.entries(servers)) {
+            console.log(`\n${name}:`);
+            console.log(`  Command: ${config.command}`);
+            console.log(`  Args: ${config.args.join(' ')}`);
+            if (config.env) {
+              console.log(`  Env: ${JSON.stringify(config.env)}`);
+            }
+          }
+          console.log('\n================================================================================\n');
+        } catch (error) {
+          console.error(`✗ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          process.exit(1);
+        }
+      }
+    )
+    .demandCommand(1, 'You must specify a command (add, list)')
+    .help()
+    .argv;
 }
 
 main().catch(console.error);

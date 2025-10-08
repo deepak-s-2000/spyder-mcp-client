@@ -5,8 +5,8 @@ REM This batch file launches the Node.js CLI version of SpyderMCP
 REM Get the directory where this batch file is located
 set "SCRIPT_DIR=%~dp0"
 
-REM Path to the Node.js CLI file
-set "CLI_FILE=%SCRIPT_DIR%index.js"
+REM Path to the Node.js CLI file (bundled version)
+set "CLI_FILE=%SCRIPT_DIR%spydermcp-bundle.cjs"
 
 REM Check if Node.js is available
 node --version >nul 2>&1

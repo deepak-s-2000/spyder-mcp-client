@@ -9,8 +9,8 @@ param(
 # Get the directory where this script is located
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-# Path to the Node.js CLI file
-$CliFile = Join-Path $ScriptDir "index.js"
+# Path to the Node.js CLI file (bundled version)
+$CliFile = Join-Path $ScriptDir "spydermcp-bundle.cjs"
 
 # Check if Node.js is available
 try {
