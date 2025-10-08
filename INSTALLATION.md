@@ -38,11 +38,7 @@ npm publish --tag latest
 
 ## Option 2: Install Electron App (GUI + CLI)
 
-Download and install the SpyderMCP Electron application.
-
-### After Installation:
-
-The NSIS installer automatically adds the CLI to your system PATH during installation.
+Download and install the SpyderMCP Electron application. This provides both a GUI interface and CLI tools.
 
 **Location:** `C:\Program Files\SpyderMCP\resources\cli\`
 
@@ -50,21 +46,12 @@ The NSIS installer automatically adds the CLI to your system PATH during install
 - `spydermcp.bat` - Windows batch script
 - `spydermcp.ps1` - PowerShell script
 - `index.js` - Main CLI entry point
+- `setup-path.ps1` - Automatic PATH setup script
 - All required dependencies
 
-### Using the CLI after installation:
+### Setup CLI for Global Access:
 
-```bash
-# Should work globally after installation
-spydermcp --help
-
-# If not working, restart your terminal first
-# (PATH changes require terminal restart)
-```
-
-### Manual Setup (if needed):
-
-If the installer didn't add to PATH automatically, run:
+After installing the Electron app, run the setup script to add SpyderMCP CLI to your PATH:
 
 ```powershell
 # Run PowerShell as Administrator
@@ -72,7 +59,11 @@ cd "C:\Program Files\SpyderMCP\resources\cli"
 .\setup-path.ps1
 ```
 
-Then restart your terminal.
+Then restart your terminal and you can use:
+
+```bash
+spydermcp --help
+```
 
 ## How This Compares to Claude Code
 
@@ -80,7 +71,7 @@ Then restart your terminal.
 |---------|-------------|-----------|
 | Installation Method | npm install -g | npm install -g OR Electron installer |
 | Global Command | `claude` | `spydermcp` |
-| PATH Setup | Automatic via npm | Automatic via npm OR installer |
+| PATH Setup | Automatic via npm | Automatic via npm OR manual (setup-path.ps1) |
 | GUI Available | No | Yes (Electron app) |
 | CLI Location | `%APPDATA%\npm\node_modules\@anthropic-ai\claude-code` | `%APPDATA%\npm\node_modules\spydermcp` OR `C:\Program Files\SpyderMCP\resources\cli` |
 

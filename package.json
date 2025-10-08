@@ -126,7 +126,6 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "SpyderMCP",
-      "include": "build/installer.nsh",
       "perMachine": true
     },
     "linux": {
