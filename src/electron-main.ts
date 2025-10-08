@@ -73,7 +73,8 @@ export class ElectronApp {
             this.mainWindow.loadFile(path.join(__dirname, '..', 'public', 'index.html'));
             this.mainWindow.webContents.openDevTools();
         } else {
-            this.mainWindow.loadFile(path.join(__dirname, 'public', 'index.html'));
+            // In production, the public folder is at the same level as dist
+            this.mainWindow.loadFile(path.join(__dirname, '..', 'public', 'index.html'));
         }
 
         this.mainWindow.once('ready-to-show', () => {

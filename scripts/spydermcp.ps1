@@ -10,7 +10,7 @@ param(
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Path to the Node.js CLI file
-$CliFile = Join-Path $ScriptDir "spydermcp-cli.js"
+$CliFile = Join-Path $ScriptDir "index.js"
 
 # Check if Node.js is available
 try {
