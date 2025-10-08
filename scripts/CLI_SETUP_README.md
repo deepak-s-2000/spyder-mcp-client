@@ -1,24 +1,10 @@
 # SpyderMCP CLI Setup
 
-## Automatic Setup (Default)
+After installing SpyderMCP, you need to add the CLI to your system PATH to use it from any terminal.
 
-**The SpyderMCP installer automatically adds the CLI to your system PATH!**
+## Option 1: Automatic Setup Script (Recommended)
 
-After installation, simply open a **new terminal** (Command Prompt or PowerShell) and run:
-
-```bash
-spydermcp --help
-```
-
-**Note:** You must open a new terminal window after installation for the PATH changes to take effect. Existing terminal windows won't see the updated PATH.
-
-## Alternative Setup Methods
-
-If the automatic PATH setup didn't work, you can use these alternatives:
-
-### Option 1: Manual PATH Setup Script
-
-Run the setup script as Administrator:
+Run the setup script as Administrator to add SpyderMCP CLI to your system PATH:
 
 **PowerShell (Run as Administrator):**
 ```powershell
@@ -26,7 +12,12 @@ cd "C:\Program Files\SpyderMCP\resources\cli"
 .\setup-path.ps1
 ```
 
-### Option 2: Manual Registry Edit
+After running this script, restart your terminal and you can use:
+```bash
+spydermcp --help
+```
+
+## Option 2: Manual PATH Setup
 
 Add the CLI directory to your system PATH manually:
 
