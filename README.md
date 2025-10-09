@@ -1,101 +1,168 @@
-# SpyderMCP Client
+# SpyderMCP
 
-Universal client for connecting to any Model Context Protocol (MCP) server through the cloud.
+**Universal proxy for MCP-compatible applications and cloud-hosted servers**
 
-## Description
+SpyderMCP is a command-line tool that connects MCP-compatible applications (like Claude Desktop, VS Code with Cline, etc.) to cloud-hosted MCP servers. It handles the stdio transport locally while communicating with your cloud server via HTTP.
 
-SpyderMCP Client is a universal proxy that connects MCP-compatible applications (like Claude Desktop) to any cloud-hosted MCP server. It provides a unified interface for accessing databases, APIs, file systems, and custom tools through the Model Context Protocol.
+## Features
+
+- ✅ **Universal Proxy** - Connect any MCP client to cloud-hosted servers
+- ✅ **Automatic Updates** - Stay up-to-date automatically  
+- ✅ **MongoDB Support** - Built-in support for MongoDB MCP servers
+- ✅ **Cross-Platform** - Works on Windows, macOS, and Linux
+- ✅ **Easy Configuration** - Simple command-line interface
 
 ## Installation
 
-### From Release
-1. Download the latest release from GitHub
-2. Extract the zip file
-3. Run with Node.js: `node dist/index.js`
+### Prerequisites
+- Node.js 20.0.0 or higher
 
-### From Source
+### Install via npm (Recommended)
+
 ```bash
-npm install
-npm run build
-npm start
+npm install -g spydermcp
+```
+
+That's it! The `spydermcp` command is now available globally.
+
+### Verify Installation
+
+```bash
+spydermcp --version
 ```
 
 ## Usage
 
-### Command Line Interface
-```bash
-spydermcp --server <server-name> [server-options]
-```
-
-#### Required Arguments
-- `--server`: The MCP server name to proxy (e.g., `mongodb-mcp-server`, `filesystem-mcp`, `postgres-mcp`)
-
-#### Optional Arguments
-- `--cloudUrl`: URL of the cloud server (default: `http://localhost:3001`)
-- `--apiKey`: API key for cloud server authentication
-- Server-specific options are supported and passed through to the target MCP server
-
-#### Environment Variables
-For cleaner configuration, you can use environment variables:
-- `SPYDERMCP_CLOUD_URL`: Cloud server URL (replaces `--cloudUrl`)
-- `SPYDERMCP_API_KEY`: API key for authentication (replaces `--apiKey`)
+### Basic Usage
 
 ```bash
-# Set environment variables (recommended)
-export SPYDERMCP_CLOUD_URL="https://spydermcp.com"
-export SPYDERMCP_API_KEY="your-api-key"
+spydermcp --server <server-name> --cloudUrl <your-cloud-url>
 ```
 
-#### Examples
-
-**With environment variables (recommended):**
-```bash
-# Set environment variables once
-export SPYDERMCP_CLOUD_URL="https://spydermcp.com"
-export SPYDERMCP_API_KEY="your-api-key"
-
-# Clean command-line usage - only server-specific arguments
-spydermcp --server mongodb-mcp-server --connectionString "mongodb://localhost:27017/mydb"
-spydermcp --server postgres-mcp --connectionString "postgresql://user:pass@localhost/db"
-spydermcp --server filesystem-mcp --rootPath "/home/user/documents"
-```
-
-**Without environment variables:**
-```bash
-# Include cloudUrl and apiKey in each command
-spydermcp --server mongodb-mcp-server --cloudUrl https://spydermcp.com --apiKey your-key --connectionString "mongodb://localhost:27017/mydb"
-```
-
-### Graphical User Interface (GUI)
-For a visual interface, use the Electron app:
+### Example: MongoDB Server
 
 ```bash
-# Development mode
-npm run electron-dev
-
-# Production mode
-npm run electron
+spydermcp --server mongodb-mcp-server \
+  --cloudUrl https://your-spydermcp-instance.com \
+  --connectionString mongodb://localhost:27017/mydb \
+  --apiKey your-api-key
 ```
 
-The GUI provides:
-- Easy configuration forms
-- Start/stop client controls
-- Status monitoring
-- Auto-update functionality
+### Configuration with MCP Clients
 
-## Requirements
+#### Claude Desktop
 
-- Node.js >= 20.0.0
+Add to `claude_desktop_config.json`:
 
-## Features
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-- Universal MCP protocol proxying to any server type
-- Support for multiple MCP server implementations
-- Graphical and command-line interfaces
-- Graceful shutdown handling
-- Comprehensive error handling and logging
-- Auto-update functionality
+```json
+{
+  "mcpServers": {
+    "spydermcp-mongodb": {
+      "command": "spydermcp",
+      "args": [
+        "--server", "mongodb-mcp-server",
+        "--cloudUrl", "https://your-cloud-server.com",
+        "--connectionString", "mongodb://localhost:27017/mydb",
+        "--apiKey", "your-api-key"
+      ]
+    }
+  }
+}
+```
+
+#### VS Code with Cline
+
+Add to `.vscode/mcp.json` or Cline settings:
+
+```json
+{
+  "mcpServers": {
+    "spydermcp-mongodb": {
+      "command": "spydermcp",
+      "args": [
+        "--server", "mongodb-mcp-server",
+        "--cloudUrl", "https://your-cloud-server.com",
+        "--connectionString", "mongodb://localhost:27017/mydb"
+      ]
+    }
+  }
+}
+```
+
+## Command-Line Options
+
+### Required Options
+
+- `--server <name>` - MCP server name (e.g., `mongodb-mcp-server`)
+
+### Optional Options
+
+- `--cloudUrl <url>` - Cloud server URL (env: `SPYDERMCP_CLOUD_URL`)
+  - Default: `http://localhost:3001`
+- `--apiKey <key>` - API key for cloud server authentication (env: `SPYDERMCP_API_KEY`)
+- `--version, -v` - Show version number
+
+### MongoDB-Specific Options
+
+When using `--server mongodb-mcp-server`, you can pass any MongoDB connection options:
+
+- `--connectionString` - MongoDB connection string
+- `--db` - Database name
+- `--host` - MongoDB host
+- `--port` - MongoDB port
+- `--username` - MongoDB username
+- `--password` - MongoDB password
+- And many more MongoDB options...
+
+Run `spydermcp --help` to see all available options.
+
+## Environment Variables
+
+You can use environment variables instead of command-line arguments:
+
+```bash
+export SPYDERMCP_CLOUD_URL=https://your-cloud-server.com
+export SPYDERMCP_API_KEY=your-api-key
+
+spydermcp --server mongodb-mcp-server --connectionString mongodb://localhost:27017/mydb
+```
+
+## Updates
+
+### Automatic Updates
+
+SpyderMCP automatically checks for updates when you run it. If a new version is available, it will:
+
+1. Show an update notification
+2. Download and install the update automatically
+3. Restart with your current command
+
+Example:
+```bash
+$ spydermcp --server mongodb-mcp-server
+
+🔄 Update available: 1.0.0 → 1.0.2
+📥 Downloading and installing update...
+✅ Update complete! Restarting...
+```
+
+### Manual Update
+
+You can also update manually at any time:
+
+```bash
+npm update -g spydermcp
+```
 
 ## License
 
-ISC
+MIT
+
+## Support
+
+- **Issues**: https://github.com/deepak-s-2000/spyder-mcp-client/issues
+- **Repository**: https://github.com/deepak-s-2000/spyder-mcp-client

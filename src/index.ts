@@ -5,6 +5,9 @@ import { hideBin } from 'yargs/helpers';
 import { McpClient } from './mcpClient.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { McpConfigManager } from './commands/mcpCommand.js';
+import { AutoUpdater } from './autoUpdater.js';
+// Version is injected during build
+const currentVersion = process.env.SPYDERMCP_VERSION || '1.0.1';
 
 // All supported MongoDB MCP server arguments (from original config.ts)
 const MONGODB_OPTIONS = {
@@ -31,12 +34,17 @@ const MONGODB_OPTIONS = {
 };
 
 async function main() {
-  // Check for GUI flag first
+  // Check for updates in the background (non-blocking)
+  const updater = new AutoUpdater(currentVersion);
+  // Auto-update if new version available
+  updater.checkAndUpdate().catch(() => {
+    // Silently fail - don't interrupt user
+  });
+
+  // Check for version flag
   const args = process.argv.slice(2);
-  if (args.includes('--gui')) {
-    console.log('Launching SpyderMCP GUI...');
-    console.log('Please use: npm run electron');
-    console.log('Or use the electron binary directly: electron dist/electron-main.js');
+  if (args.includes('--version') || args.includes('-v')) {
+    console.log(`spydermcp v${currentVersion}`);
     return;
   }
 
