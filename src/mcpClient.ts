@@ -32,7 +32,7 @@ export interface CloudServerResponse {
 }
 
 export interface VendorInstruction {
-  type: 'mongodb' | 'postgresql' | 'mysql' | 'http';
+  type: 'mongodb' | 'postgresql' | 'mysql' | 'http' | 'playwright';
   operation: string;
   parameters: any;
   connectionString?: string;

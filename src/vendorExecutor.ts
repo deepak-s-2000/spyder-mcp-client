@@ -14,7 +14,7 @@ export class VendorExecutor {
    */
   async execute(instruction: VendorInstruction): Promise<any> {
     console.error(`Executing vendor instruction: ${instruction.type}.${instruction.operation}`);
-    
+
     switch (instruction.type) {
       case 'mongodb':
         return await this.executeMongoInstruction(instruction);
@@ -24,6 +24,8 @@ export class VendorExecutor {
         throw new Error('MySQL vendor instructions not yet implemented');
       case 'http':
         return await this.executeHttpInstruction(instruction);
+      case 'playwright':
+        return await this.executePlaywrightInstruction(instruction);
       default:
         throw new Error(`Unsupported vendor instruction type: ${instruction.type}`);
     }
@@ -396,7 +398,7 @@ export class VendorExecutor {
   // Helper method to infer schema from documents
   private inferSchema(documents: any[]): any {
     if (documents.length === 0) return {};
-    
+
     const schema: any = {};
     for (const doc of documents) {
       for (const [key, value] of Object.entries(doc)) {
@@ -411,16 +413,416 @@ export class VendorExecutor {
         }
       }
     }
-    
+
     return schema;
   }
 
+  // Playwright operations - lightweight browser automation executor
+  private playwrightBrowser: any = null;
+  private playwrightContext: any = null;
+  private playwrightPage: any = null;
+
+  private async executePlaywrightInstruction(instruction: VendorInstruction): Promise<any> {
+    const { operation, parameters } = instruction;
+
+    console.error(`Executing Playwright operation: ${operation}`);
+
+    try {
+      // Dynamically import playwright only when needed (keeps client lightweight)
+      const playwright = await import('playwright');
+
+      // Initialize browser if needed
+      if (!this.playwrightBrowser) {
+        const browserType = parameters.browserType || 'chromium';
+        const headless = parameters.headless !== false;
+
+        console.error(`Launching ${browserType} browser (headless: ${headless})...`);
+
+        if (browserType === 'chromium') {
+          this.playwrightBrowser = await playwright.chromium.launch({ headless });
+        } else if (browserType === 'firefox') {
+          this.playwrightBrowser = await playwright.firefox.launch({ headless });
+        } else if (browserType === 'webkit') {
+          this.playwrightBrowser = await playwright.webkit.launch({ headless });
+        } else {
+          throw new Error(`Unsupported browser type: ${browserType}`);
+        }
+
+        this.playwrightContext = await this.playwrightBrowser.newContext();
+        this.playwrightPage = await this.playwrightContext.newPage();
+
+        // Set up console message logging
+        this.playwrightPage.on('console', (msg: any) => {
+          this.playwrightConsoleLog.push({
+            type: msg.type(),
+            text: msg.text(),
+            timestamp: new Date().toISOString()
+          });
+        });
+
+        // Set up network request logging
+        this.playwrightPage.on('request', (request: any) => {
+          this.playwrightNetworkLog.push({
+            url: request.url(),
+            method: request.method(),
+            timestamp: new Date().toISOString()
+          });
+        });
+
+        console.error('Browser launched successfully');
+      }
+
+      // Execute the operation (official Microsoft Playwright MCP operations)
+      switch (operation) {
+        // Navigation
+        case 'navigate':
+          return await this.playwrightNavigate(parameters);
+        case 'navigate_back':
+          return await this.playwrightNavigateBack(parameters);
+        case 'navigate_forward':
+          return await this.playwrightNavigateForward(parameters);
+        case 'reload':
+          return await this.playwrightReload(parameters);
+
+        // Interaction
+        case 'click':
+          return await this.playwrightClick(parameters);
+        case 'fill':
+          return await this.playwrightFill(parameters);
+        case 'type':
+          return await this.playwrightType(parameters);
+        case 'press_key':
+          return await this.playwrightPressKey(parameters);
+        case 'select_option':
+          return await this.playwrightSelectOption(parameters);
+        case 'hover':
+          return await this.playwrightHover(parameters);
+        case 'drag':
+          return await this.playwrightDrag(parameters);
+
+        // Forms
+        case 'fill_form':
+          return await this.playwrightFillForm(parameters);
+        case 'file_upload':
+          return await this.playwrightFileUpload(parameters);
+
+        // Content Extraction
+        case 'snapshot':
+          return await this.playwrightSnapshot(parameters);
+        case 'take_screenshot':
+          return await this.playwrightTakeScreenshot(parameters);
+        case 'get_text':
+          return await this.playwrightGetText(parameters);
+        case 'get_attribute':
+          return await this.playwrightGetAttribute(parameters);
+        case 'get_html':
+          return await this.playwrightGetHtml(parameters);
+
+        // State & Monitoring
+        case 'wait_for':
+          return await this.playwrightWaitFor(parameters);
+        case 'evaluate':
+          return await this.playwrightEvaluate(parameters);
+        case 'console_messages':
+          return await this.playwrightConsoleMessages(parameters);
+        case 'network_requests':
+          return await this.playwrightNetworkRequests(parameters);
+
+        // Browser State
+        case 'get_url':
+          return await this.playwrightGetUrl();
+        case 'get_title':
+          return await this.playwrightGetTitle();
+
+        // Dialogs
+        case 'handle_dialog':
+          return await this.playwrightHandleDialog(parameters);
+
+        // Management
+        case 'resize':
+          return await this.playwrightResize(parameters);
+        case 'pdf_save':
+          return await this.playwrightPdfSave(parameters);
+        case 'close':
+          return await this.playwrightClose();
+
+        default:
+          throw new Error(`Unsupported Playwright operation: ${operation}`);
+      }
+    } catch (error) {
+      console.error('Playwright operation error:', error);
+      return {
+        error: error instanceof Error ? error.message : 'Unknown Playwright error'
+      };
+    }
+  }
+
+  // Playwright operation implementations
+  private async playwrightNavigate(params: any): Promise<any> {
+    const { url, waitUntil = 'load' } = params;
+    await this.playwrightPage.goto(url, { waitUntil });
+    return { success: true, url, message: `Navigated to ${url}` };
+  }
+
+  private async playwrightClick(params: any): Promise<any> {
+    const { selector, timeout = 30000 } = params;
+    await this.playwrightPage.click(selector, { timeout });
+    return { success: true, selector, message: `Clicked ${selector}` };
+  }
+
+  private async playwrightFill(params: any): Promise<any> {
+    const { selector, text, timeout = 30000 } = params;
+    await this.playwrightPage.fill(selector, text, { timeout });
+    return { success: true, selector, message: `Filled ${selector} with text` };
+  }
+
+  private async playwrightType(params: any): Promise<any> {
+    const { selector, text, delay = 100, timeout = 30000 } = params;
+    await this.playwrightPage.type(selector, text, { delay, timeout });
+    return { success: true, selector, message: `Typed into ${selector}` };
+  }
+
+  private async playwrightPressKey(params: any): Promise<any> {
+    const { key, selector } = params;
+    if (selector) {
+      await this.playwrightPage.press(selector, key);
+    } else {
+      await this.playwrightPage.keyboard.press(key);
+    }
+    return { success: true, key, message: `Pressed ${key}` };
+  }
+
+  private async playwrightSelectOption(params: any): Promise<any> {
+    const { selector, value, timeout = 30000 } = params;
+    await this.playwrightPage.selectOption(selector, value, { timeout });
+    return { success: true, selector, value, message: `Selected ${value} in ${selector}` };
+  }
+
+  private async playwrightHover(params: any): Promise<any> {
+    const { selector, timeout = 30000 } = params;
+    await this.playwrightPage.hover(selector, { timeout });
+    return { success: true, selector, message: `Hovered over ${selector}` };
+  }
+
+  private async playwrightDrag(params: any): Promise<any> {
+    const { sourceSelector, targetSelector, timeout = 30000 } = params;
+    const source = await this.playwrightPage.locator(sourceSelector);
+    const target = await this.playwrightPage.locator(targetSelector);
+    await source.dragTo(target, { timeout });
+    return { success: true, message: `Dragged from ${sourceSelector} to ${targetSelector}` };
+  }
+
+  private async playwrightFillForm(params: any): Promise<any> {
+    const { fields } = params;
+    const results = [];
+
+    for (const field of fields) {
+      try {
+        await this.playwrightPage.fill(field.selector, field.value);
+        results.push({ selector: field.selector, success: true });
+      } catch (error) {
+        results.push({
+          selector: field.selector,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+
+    return { success: true, results, message: `Filled ${fields.length} form fields` };
+  }
+
+  private async playwrightFileUpload(params: any): Promise<any> {
+    const { selector, files, timeout = 30000 } = params;
+    await this.playwrightPage.setInputFiles(selector, files, { timeout });
+    return { success: true, selector, files, message: `Uploaded ${files.length} file(s)` };
+  }
+
+  private async playwrightSnapshot(params: any): Promise<any> {
+    const { selector } = params;
+
+    if (selector) {
+      const element = await this.playwrightPage.locator(selector);
+      const snapshot = await element.ariaSnapshot();
+      return { success: true, snapshot };
+    } else {
+      const snapshot = await this.playwrightPage.ariaSnapshot();
+      return { success: true, snapshot };
+    }
+  }
+
+  private async playwrightTakeScreenshot(params: any): Promise<any> {
+    const { selector, fullPage = false, type = 'png' } = params;
+    let screenshot: Buffer;
+
+    if (selector) {
+      const element = await this.playwrightPage.locator(selector);
+      screenshot = await element.screenshot({ type });
+    } else {
+      screenshot = await this.playwrightPage.screenshot({ fullPage, type });
+    }
+
+    return {
+      success: true,
+      screenshot: screenshot.toString('base64'),
+      type,
+      message: 'Screenshot captured successfully'
+    };
+  }
+
+  private async playwrightGetText(params: any): Promise<any> {
+    const { selector, all = false, timeout = 30000 } = params;
+
+    if (all) {
+      const elements = await this.playwrightPage.locator(selector).all();
+      const texts = await Promise.all(elements.map((el: any) => el.textContent()));
+      return { success: true, texts, count: texts.length };
+    } else {
+      const text = await this.playwrightPage.locator(selector).textContent({ timeout });
+      return { success: true, text };
+    }
+  }
+
+  private async playwrightGetAttribute(params: any): Promise<any> {
+    const { selector, attribute, timeout = 30000 } = params;
+    const value = await this.playwrightPage.locator(selector).getAttribute(attribute, { timeout });
+    return { success: true, attribute, value };
+  }
+
+  private async playwrightGetHtml(params: any): Promise<any> {
+    const { selector, timeout = 30000 } = params;
+
+    if (selector) {
+      const html = await this.playwrightPage.locator(selector).innerHTML({ timeout });
+      return { success: true, html };
+    } else {
+      const html = await this.playwrightPage.content();
+      return { success: true, html };
+    }
+  }
+
+  private async playwrightWaitFor(params: any): Promise<any> {
+    const { selector, state = 'visible', timeout = 30000 } = params;
+
+    // If selector is provided, wait for element state
+    if (selector) {
+      await this.playwrightPage.waitForSelector(selector, { state, timeout });
+      return { success: true, selector, state, message: `Element ${selector} is ${state}` };
+    } else {
+      // Otherwise just wait for the timeout duration
+      await this.playwrightPage.waitForTimeout(timeout);
+      return { success: true, timeout, message: `Waited ${timeout}ms` };
+    }
+  }
+
+  private async playwrightEvaluate(params: any): Promise<any> {
+    const { script } = params;
+    const result = await this.playwrightPage.evaluate(script);
+    return { success: true, result };
+  }
+
+  private async playwrightGetUrl(): Promise<any> {
+    const url = this.playwrightPage.url();
+    return { success: true, url };
+  }
+
+  private async playwrightGetTitle(): Promise<any> {
+    const title = await this.playwrightPage.title();
+    return { success: true, title };
+  }
+
+  private async playwrightReload(params: any): Promise<any> {
+    const { waitUntil = 'load' } = params;
+    await this.playwrightPage.reload({ waitUntil });
+    return { success: true, message: 'Page reloaded' };
+  }
+
+  private async playwrightNavigateBack(params: any): Promise<any> {
+    const { waitUntil = 'load' } = params;
+    await this.playwrightPage.goBack({ waitUntil });
+    return { success: true, message: 'Navigated back' };
+  }
+
+  private async playwrightNavigateForward(params: any): Promise<any> {
+    const { waitUntil = 'load' } = params;
+    await this.playwrightPage.goForward({ waitUntil });
+    return { success: true, message: 'Navigated forward' };
+  }
+
+  // Monitoring & State
+  private playwrightConsoleLog: any[] = [];
+  private playwrightNetworkLog: any[] = [];
+
+  private async playwrightConsoleMessages(params: any): Promise<any> {
+    const { onlyErrors = false } = params;
+
+    if (onlyErrors) {
+      const errors = this.playwrightConsoleLog.filter(msg => msg.type === 'error');
+      return { success: true, messages: errors, count: errors.length };
+    }
+
+    return { success: true, messages: this.playwrightConsoleLog, count: this.playwrightConsoleLog.length };
+  }
+
+  private async playwrightNetworkRequests(params: any): Promise<any> {
+    const { filter } = params;
+
+    let requests = this.playwrightNetworkLog;
+    if (filter) {
+      requests = requests.filter(req => req.url.includes(filter));
+    }
+
+    return { success: true, requests, count: requests.length };
+  }
+
+  private async playwrightHandleDialog(params: any): Promise<any> {
+    const { action, promptText } = params;
+
+    // Set up dialog handler for next dialog
+    this.playwrightPage.once('dialog', async (dialog: any) => {
+      if (action === 'accept') {
+        await dialog.accept(promptText);
+      } else {
+        await dialog.dismiss();
+      }
+    });
+
+    return { success: true, message: `Dialog handler set to ${action}` };
+  }
+
+  private async playwrightResize(params: any): Promise<any> {
+    const { width, height } = params;
+    await this.playwrightPage.setViewportSize({ width, height });
+    return { success: true, width, height, message: `Resized viewport to ${width}x${height}` };
+  }
+
+  private async playwrightPdfSave(params: any): Promise<any> {
+    const { path, format = 'Letter', printBackground = false } = params;
+    await this.playwrightPage.pdf({ path, format, printBackground });
+    return { success: true, path, message: `PDF saved to ${path}` };
+  }
+
+  private async playwrightClose(): Promise<any> {
+    if (this.playwrightBrowser) {
+      await this.playwrightBrowser.close();
+      this.playwrightBrowser = null;
+      this.playwrightContext = null;
+      this.playwrightPage = null;
+      this.playwrightConsoleLog = [];
+      this.playwrightNetworkLog = [];
+      console.error('Browser closed');
+      return { success: true, message: 'Browser closed' };
+    }
+    return { success: true, message: 'Browser was not running' };
+  }
+
   /**
-   * Close all database connections
+   * Close all database connections and browser
    */
   async close(): Promise<void> {
-    console.error('Closing all database connections...');
-    
+    console.error('Closing all connections...');
+
+    // Close MongoDB connections
     for (const [connectionString, connection] of this.mongoConnections) {
       try {
         await connection.client.close();
@@ -429,7 +831,20 @@ export class VendorExecutor {
         console.error(`Error closing connection ${connectionString}:`, error);
       }
     }
-    
+
     this.mongoConnections.clear();
+
+    // Close Playwright browser
+    if (this.playwrightBrowser) {
+      try {
+        await this.playwrightBrowser.close();
+        this.playwrightBrowser = null;
+        this.playwrightContext = null;
+        this.playwrightPage = null;
+        console.error('Closed browser');
+      } catch (error) {
+        console.error('Error closing browser:', error);
+      }
+    }
   }
 }
