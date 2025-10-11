@@ -23,7 +23,11 @@ async function bundle() {
       format: 'cjs',
       external: [
         // External native modules that can't be bundled
-        'mongodb-client-encryption'
+        'mongodb-client-encryption',
+        // Playwright and its dependencies (too large to bundle, needs browsers at runtime)
+        'playwright',
+        'playwright-core',
+        'chromium-bidi'
       ],
       define: {
         'process.env.SPYDERMCP_VERSION': JSON.stringify(packageJson.version)
