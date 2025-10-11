@@ -28,7 +28,7 @@ const MONGODB_OPTIONS = {
     'nodb', 'oidcIdTokenAsAccessToken', 'oidcNoNonce', 'oidcTrustedEndpoint',
     'readOnly', 'retryWrites', 'ssl', 'sslAllowInvalidCertificates',
     'sslAllowInvalidHostnames', 'sslFIPSMode', 'tls', 'tlsAllowInvalidCertificates',
-    'tlsAllowInvalidHostnames', 'tlsFIPSMode', 'version'
+    'tlsAllowInvalidHostnames', 'tlsFIPSMode'
   ],
   array: ['disabledTools', 'loggers']
 };

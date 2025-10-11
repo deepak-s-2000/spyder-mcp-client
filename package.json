@@ -1,6 +1,6 @@
 {
   "name": "spydermcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "SpyderMCP - Universal proxy for MCP-compatible applications and cloud-hosted servers with Playwright browser automation",
   "author": "SpyderMCP Team",
   "license": "MIT",
